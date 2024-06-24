@@ -2,4 +2,5 @@ torch
 transformers
 scikit-learn
 pandas
-numpy
+numpy<2
+pydantic
