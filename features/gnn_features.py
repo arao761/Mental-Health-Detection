@@ -14,3 +14,4 @@ class GNNFeatureExtractor(nn.Module):
         x = torch.relu(self.conv1(x, edge_index))
         x = torch.relu(self.conv2(x, edge_index))
         return x
+    
