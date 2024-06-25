@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset, random_split
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -19,13 +19,13 @@ def visualize_graph(graph, title):
     plt.show()
 
 def main():
-    # Load data
+    # Loads the data
     social_media_data = load_social_media_data()
     wearable_data = load_wearable_data()
     academic_data = load_academic_data()
     peer_interaction_data = load_peer_interaction_data()
 
-    # Preprocess data
+    # Preprocess the data
     social_media_data_processed = preprocess_social_media_data(social_media_data)
     wearable_data_processed = preprocess_wearable_data(wearable_data)
     academic_data_processed = preprocess_academic_data(academic_data)
@@ -42,26 +42,30 @@ def main():
     academic_features = academic_extractor.extract_features(academic_data_processed)
     peer_features = peer_extractor.extract_features(peer_interaction_data_processed)
 
-    # Create a graph for peer interactions
+    # Creates a graph for peer interactions
     peer_graph = nx.Graph()
-    peer_graph.add_edges_from(zip(peer_interaction_data['messages_sent'], peer_interaction_data['group_activities_participated']))
+    peer_graph.add_edges_from(zip(peer_interaction_data['user_id'], peer_interaction_data['num_friends']))
     visualize_graph(peer_graph, "Peer Interaction Graph")
 
-    # Prepare dataset
-    labels = torch.tensor(np.random.randint(0, 2, size=(social_features.shape[0],)), dtype=torch.float32)
-    dataset = TensorDataset(social_features, wearable_features, academic_features, peer_features, labels)
-    train_dataset, val_dataset = torch.utils.data.random_split(dataset, [int(0.8*len(dataset)), len(dataset) - int(0.8*len(dataset))])
+    # Prepares the dataset
+    labels = torch.tensor(np.random.randint(0, 2, size=(social_features.shape[0], 1)), dtype=torch.float32)
+    features = torch.cat((social_features, wearable_features, academic_features, peer_features), dim=1)
+    
+    dataset = TensorDataset(features, labels)
+    train_size = int(0.8 * len(dataset))
+    val_size = len(dataset) - train_size
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
     dataloaders = {'train': train_loader, 'val': val_loader}
 
-    # Initialize model, criterion, optimizer
+    # Initializes model, criterion, and optimizer
     model = MultimodalFusion(input_sizes=[768, 50, 50, 128], hidden_size=128)
     criterion = torch.nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    # Train and evaluate the model
+    # Trains and evaluate the model
     train_model(model, dataloaders, criterion, optimizer, num_epochs=25)
     evaluate_model(model, val_loader)
 
