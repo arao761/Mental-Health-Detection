@@ -1,7 +1,7 @@
 torch
-transformers
+torchvision
+torch-geometric
 scikit-learn
-pandas
-numpy<2
-pydantic
-scipy 
+transformers
+shap
+lime
