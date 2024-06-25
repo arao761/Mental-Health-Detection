@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from sklearn.cross_decomposition import CCA
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25):
     for epoch in range(num_epochs):
         for phase in ['train', 'val']:
-            if phase == 'train':
+            if (phase == 'train'):
                 model.train()
             else:
                 model.eval()
@@ -14,10 +15,14 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25):
             running_loss = 0.0
             for inputs, labels in dataloaders[phase]:
                 social, wearable, academic, peer = inputs
+                # Apply CCA
+                cca = CCA(n_components=2)
+                X_cca, _ = cca.fit_transform(social, wearable, academic, peer)
+                X_cca = torch.tensor(X_cca, dtype=torch.float32)
 
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == 'train'):
-                    outputs = model(social, wearable, academic, peer)
+                    outputs = model(X_cca)
                     loss = criterion(outputs, labels)
                     if phase == 'train':
                         loss.backward()
@@ -34,8 +39,12 @@ def evaluate_model(model, dataloader):
     with torch.no_grad():
         for inputs, labels in dataloader:
             social, wearable, academic, peer = inputs
+            # Applies CCA
+            cca = CCA(n_components=2)
+            X_cca, _ = cca.fit_transform(social, wearable, academic, peer)
+            X_cca = torch.tensor(X_cca, dtype=torch.float32)
 
-            outputs = model(social, wearable, academic, peer)
+            outputs = model(X_cca)
             all_labels.append(labels)
             all_outputs.append(outputs)
 
