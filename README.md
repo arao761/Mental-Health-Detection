@@ -10,7 +10,7 @@ This project integrates various types of data:
 - **Academic Data**: GPA, attendance, and number of extracurricular activities.
 - **Peer Interaction Data**: Number of friends, messages sent, and group activities participated.
 
-The goal is to use these diverse datasets to build a model that can predict specific outcomes (e.g., academic performance) by leveraging the strengths of different machine learning models.
+The goal is to use these diverse datasets to build a model that can predict early signs of mental health disorders by leveraging the strengths of different machine learning models.
 
 ## Dependencies
 
