@@ -12,7 +12,7 @@ from features.gnn_features import GNNFeatureExtractor
 from features.nlp_features import extract_nlp_features
 from features.time_series import RNNFeatureExtractor
 
-# Loads and preprocess the data
+# Loads and preprocesses the data
 social_media_data = preprocess_social_media_data(load_social_media_data())
 wearable_data = preprocess_wearable_data(load_wearable_data())
 academic_data = preprocess_academic_data(load_academic_data())
